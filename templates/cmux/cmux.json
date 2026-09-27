@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/manaflow-ai/cmux/main/web/data/cmux.schema.json",
+  "schemaVersion": 1,
+  "terminal": {
+    "agentHibernation": { "enabled": false, "maxLiveTerminals": 8 }
+  },
+  "sidebarAppearance": { "matchTerminalBackground": false, "darkModeTintColor": "#131722", "lightModeTintColor": "#131722", "tintOpacity": 1 },
+  "sidebar": { "pathLastSegmentOnly": true, "showLog": false, "showPorts": false, "showWorkspaceDescription": true, "showNotificationMessage": false },
+  "paneBorderColor": "#403D52",
+  "actions": {
+    "claude-new-tab": { "type": "agent", "agent": "claude", "title": "New Claude tab", "subtitle": "Start Claude Code in this workspace", "target": "newTabInCurrentPane", "palette": true }
+  }
+
+  // Installed by the cmux starter kit. JSON with comments is allowed.
+  // Every setting cmux knows: run `cmux docs settings`. After a change: `cmux reload-config`.
+}

@@ -1,0 +1,23 @@
+# Ghostty terminal settings (read by cmux). Installed by the cmux starter kit.
+# Change anything here, then run `cmux reload-config` (no restart needed).
+
+# One key to get a thread ready for /compact: Cmd+Option+P types "prepare to compact".
+keybind = cmd+alt+p=text:prepare to compact\r
+
+# Readability: lift any faded text to a readable contrast against the background.
+minimum-contrast = 4.5
+
+# Breathing room around the text.
+window-padding-x = 14
+window-padding-y = 8
+window-padding-balance = true
+
+# Dim the panes you are not using, so the active one stands out.
+unfocused-split-opacity = 0.25
+unfocused-split-fill = #000000
+
+# Font. The kit installs nothing here; Menlo ships with every Mac.
+# A very readable free alternative: Atkinson Hyperlegible Mono (Google Fonts), then set font-family to it.
+font-family = Menlo
+adjust-cell-height = 15%
+font-size = 14

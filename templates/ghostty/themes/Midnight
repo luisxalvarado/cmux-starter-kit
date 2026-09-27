@@ -1,0 +1,24 @@
+# Midnight: a dark chart style palette. Canvas #131722, text #f0f3fa, accent blue #5b9cf6.
+# Change any value, then run `cmux reload-config`.
+background = #131722
+foreground = #f0f3fa
+cursor-color = #5b9cf6
+cursor-text = #131722
+selection-background = #29404b
+selection-foreground = #ffffff
+palette = 0=#1e222d
+palette = 1=#f7525f
+palette = 2=#22ab94
+palette = 3=#f7c948
+palette = 4=#5b9cf6
+palette = 5=#9c7bf5
+palette = 6=#4dd0e1
+palette = 7=#b2b5be
+palette = 8=#50535e
+palette = 9=#ff7b85
+palette = 10=#42d3b5
+palette = 11=#ffd966
+palette = 12=#2962ff
+palette = 13=#b39dfb
+palette = 14=#0097a7
+palette = 15=#ffffff

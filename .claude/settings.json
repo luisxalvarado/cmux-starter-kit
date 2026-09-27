@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 kit.py:*)",
+      "Bash(python3 ./kit.py:*)",
+      "Bash(cmux:*)",
+      "Bash(readlink /etc/localtime)",
+      "Bash(cat ~/.claude/boards/*)",
+      "Read(~/.claude/**)",
+      "Read(~/.config/cmux/**)",
+      "Read(~/.config/ghostty/**)"
+    ]
+  }
+}

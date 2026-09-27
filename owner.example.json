@@ -1,0 +1,13 @@
+{
+  "name": "Sam",
+  "assistant_name": "Nova",
+  "timezone": "America/New_York",
+  "language": "English",
+  "focus": "Learning cmux and Claude, and planning a small online shop.",
+  "workspaces": [
+    { "title": "Main", "color": "blue", "folder": "~/Projects/main", "purpose": "Everyday work and questions" },
+    { "title": "Nova", "color": "silver", "folder": "~/Projects/nova", "purpose": "The assistant's home and setup" },
+    { "title": "Shop", "color": "pink", "folder": "~/Projects/shop", "purpose": "The online shop project" }
+  ],
+  "notify": { "telegram_chat_id": "", "telegram_token_file": "~/.hermes/.env" }
+}
