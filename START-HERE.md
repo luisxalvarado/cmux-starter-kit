@@ -46,16 +46,19 @@ Ask one question at a time (the question tool with options is fine when there ar
 **Do:** write `~/.claude/kit/owner.json` following `owner.example.json` (folders default to
 `~/Projects/<workspace-name-in-lowercase>`; `purpose` is their one line). Show them a short summary and ask
 "Does this look right?"
-**Check:** `python3 -c "import json;json.load(open('$HOME/.claude/kit/owner.json'))"` succeeds and they said yes.
+**Check:** `python3 kit.py doctor` shows "owner.json filled in correctly" and they said yes.
 
 ## Step 3. Look before we touch
 **Do:** check which of these already exist: `~/.claude/CLAUDE.md`, `~/.claude/settings.json`,
-`~/.config/cmux/cmux.json`, `~/.config/ghostty/config`.
+`~/.claude/commands/` (prime, log, pre-compact, improve), `~/.config/cmux/cmux.json`, `~/.config/ghostty/config`.
 **Say:**
 - Nothing exists: say so, all fresh, nothing to worry about.
 - `~/.claude/CLAUDE.md` exists: the kit never overwrites it. After install, offer to merge the kit's version
   (`~/.claude/kit/suggested/CLAUDE.md`) into theirs together, section by section.
-- `settings.json` exists: the kit only adds to it (status line, theme, hooks). Everything else stays.
+- `settings.json` exists: the kit sets the status line and theme and adds its hooks. Their other settings and
+  hooks stay. The old status line and theme are restored if they ever uninstall.
+- `~/.claude/commands/prime.md`, `log.md`, `pre-compact.md` or `improve.md` exist: the kit replaces them
+  (backed up first). Tell them, and ask before continuing.
 - `cmux.json` or ghostty `config` exist: ask whether to keep theirs or use the kit's (theirs is backed up first).
 **Check:** you know whether Step 4 runs with `--replace-config`.
 
@@ -65,7 +68,7 @@ adds a status line and theme to Claude, starts two small background jobs (the si
 watcher that continues a conversation after a usage limit resets), and downloads the official cmux skills.
 Anything it replaces is backed up. Undo at any time: `python3 kit.py uninstall`.
 **Do:** `python3 kit.py install` (add `--replace-config` if they chose the kit's settings in Step 3).
-**Check:** it ends with "Installed." Read any ⚠️ lines to them and handle each.
+**Check:** it ends with "Installed." If a ⚠️ line appears, explain it in plain words; most are informational.
 
 ## Step 5. Workspaces
 **Do:** `python3 kit.py workspaces`
@@ -101,10 +104,12 @@ fill in anything missing with them.
 ```
 Keys: **Cmd+T** new tab in this workspace, **Cmd+N** new workspace, **Cmd+1..9** jump to a workspace,
 **Cmd+B** show or hide the sidebar, **Cmd+Option+P** types "prepare to compact".
-**Do:** ask them to open a new tab in their **Main** workspace (Cmd+1, then Cmd+T), type `claude`, and then `/prime`.
+**Do:** ask them to click their first workspace's card in the sidebar (Main, or whatever they named it), press
+Cmd+T for a new tab, type `claude`, and then `/prime`.
 Tell them to come back to this tab when it answers. Suggest a tiny real task there (for example "set my Now line
 to: learning cmux"), then `/log`.
-**Check:** `cat ~/.claude/boards/main.md` shows their new Now line and a handoff exists in `~/.claude/handoffs/`.
+**Check:** that workspace's board in `~/.claude/boards/` shows their new Now line, and a handoff exists in
+`~/.claude/handoffs/`.
 
 ## Step 9. Your assistant on Telegram (optional)
 **Say:** what it is in two lines (a personal assistant on their phone that shares this brain), and that it takes

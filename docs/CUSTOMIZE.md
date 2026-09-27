@@ -20,7 +20,7 @@ theme", "add a rule that you always answer in Spanish"). Below is where each thi
 - The status line is `~/.claude/statusline.sh` (colors at the top). It turns red at 50% context as the cue for `/pre-compact`.
 
 ## The sidebar
-- `~/.config/cmux/sidebars/starter-board.js`. The six color constants at the top restyle it. Save and it reloads.
+- `~/.config/cmux/sidebars/starter-board.js`. The color constants at the top restyle it. Save and it reloads.
 - To switch back to the standard sidebar: right-click the sidebar button and pick the default.
 - Ideas for your own: `cmux docs sidebars`.
 

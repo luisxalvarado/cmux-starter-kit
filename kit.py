@@ -6,6 +6,7 @@
     python3 kit.py workspaces    create the workspaces from owner.json, with colors, folders and boards
     python3 kit.py verify        check every piece is in place and working
     python3 kit.py update        pull the newest kit and refresh the code (your own files are never touched)
+    python3 kit.py install --refresh-skills   download the cmux skills again
     python3 kit.py uninstall     remove the kit and put back what it replaced
     python3 kit.py agent         give the Telegram assistant (Hermes) its personality and folder
     python3 kit.py notify <id>   turn on Telegram pings when you are away (your Telegram user id)
@@ -122,6 +123,8 @@ def load_owner(required=True):
     for w in data.get("workspaces") or []:
         if not w.get("title"):
             problems.append("a workspace has no title")
+        elif not re.search(r"[a-z0-9]", w["title"].lower()):
+            problems.append(f"workspace title '{w['title']}' needs at least one plain letter or number (emoji can be added after)")
         c = str(w.get("color") or "")
         if c.lower() in COLORS:
             w["color"] = COLORS[c.lower()]
@@ -180,7 +183,9 @@ def backup(path, stamp):
 def put(src, dest, values, stamp, man, do_render=True):
     """Write one file from the kit, backing up whatever was there. Returns True when it changed."""
     text = open(os.path.join(KIT, src), encoding="utf-8").read()
-    if do_render:
+    if do_render and dest.endswith(".js"):  # inside JS strings: escape quotes and backslashes
+        text = render(text, {k: json.dumps(str(v))[1:-1] for k, v in values.items()})
+    elif do_render:
         text = render(text, values)
     if os.path.exists(dest) and open(dest, encoding="utf-8", errors="ignore").read() == text:
         return False
@@ -205,8 +210,9 @@ def doctor():
         ("inside a cmux tab", bool(os.environ.get("CMUX_WORKSPACE_ID")), "Open cmux and run this from a cmux terminal tab."),
         ("Mac developer tools (git, python3)", run(["xcode-select", "-p"])[0] == 0, "Run: xcode-select --install"),
         ("git", shutil.which("git") is not None, "Run: xcode-select --install"),
-        ("Claude Code", shutil.which("claude") is not None or os.path.exists(x("~/.local/bin/claude")),
-         "Run: curl -fsSL https://claude.ai/install.sh | bash"),
+        ("Claude Code", shutil.which("claude") is not None,
+         "Run: curl -fsSL https://claude.ai/install.sh | bash, then add ~/.local/bin to your PATH "
+         "(echo 'export PATH=\"$HOME/.local/bin:$PATH\"' >> ~/.zshrc) and open a new tab"),
         ("jq (for the status line)", shutil.which("jq") is not None,
          "macOS 15 and later include it. Otherwise: install Homebrew (https://brew.sh), then brew install jq"),
     ]
@@ -217,7 +223,11 @@ def doctor():
     for name, good, fix in checks:
         print(f"{OK if good else BAD} {name}" + ("" if good else f"\n     fix: {fix}"))
         ok = ok and good
-    print(f"{OK if os.path.exists(OWNER) else WARN} owner.json" + ("" if os.path.exists(OWNER) else " not written yet (the setup guide does this next)"))
+    if os.path.exists(OWNER):
+        load_owner()  # exits with a clear message if a field needs fixing
+        print(f"{OK} owner.json filled in correctly")
+    else:
+        print(f"{WARN} owner.json not written yet (the setup guide does this next)")
     print("\nReady for install." if ok else "\nFix the items marked ❌, then run doctor again.")
     return 0 if ok else 1
 
@@ -340,6 +350,10 @@ def install(code_only=False, replace_config=False):
     for src, dest, do_render in MANAGED:
         if put(src, x(dest), values, stamp, man, do_render):
             changed.append(dest)
+    if code_only:  # update: new hooks and background jobs still reach existing installs
+        merge_settings(man)
+        if not TEST:
+            launch_agents(stamp, man)
     if not code_only:
         for src, dest in CONFIG:
             d = x(dest)
@@ -353,7 +367,10 @@ def install(code_only=False, replace_config=False):
             if not os.path.exists(d):
                 os.makedirs(os.path.dirname(d), exist_ok=True)
                 open(d, "w", encoding="utf-8").write(render(open(os.path.join(KIT, src), encoding="utf-8").read(), values))
+                man.setdefault("created_owned", []).append(d)
                 changed.append(dest)
+            elif d in man.get("created_owned", []):
+                pass  # the kit made it earlier and it is yours now: nothing to say
             else:
                 sug = os.path.join(KIT_STATE, "suggested", os.path.basename(d))
                 os.makedirs(os.path.dirname(sug), exist_ok=True)
@@ -365,7 +382,8 @@ def install(code_only=False, replace_config=False):
         print(f"{OK} Claude settings: status line, Midnight theme, {added} hook(s) added")
         if not TEST:
             launch_agents(stamp, man)
-            got = fetch_skills()
+            got = fetch_skills(refresh="--refresh-skills" in sys.argv)
+            man["skills"] = sorted(set(man.get("skills", [])) | set(got))
             if got:
                 print(f"{OK} cmux skills downloaded: {', '.join(got)}")
         if os.path.exists(CMUX) and not TEST:
@@ -383,6 +401,7 @@ def install(code_only=False, replace_config=False):
 # ---------------------------------------------------------------- workspaces
 
 def slug(t):
+    """Folder and board name for a workspace title (must match the sidebar's slug())."""
     return re.sub(r"[^a-z0-9]+", "-", t.lower()).strip("-")
 
 
@@ -540,7 +559,11 @@ def uninstall():
         print(f"{OK} Claude settings restored")
     except (OSError, ValueError):
         pass
+    for name in man.get("skills", []):
+        shutil.rmtree(x(f"~/.claude/skills/{name}"), ignore_errors=True)
+        print(f"{OK} removed skill {name}")
     if os.path.exists(CMUX) and not TEST:
+        run([CMUX, "sidebar", "select", "default"])
         run([CMUX, "themes", "clear"])
         run([CMUX, "reload-config"])
     save_manifest({"installed": None, "files": {}, "settings_before": None})
@@ -581,6 +604,7 @@ def notify(chat_id):
     """Turn on Telegram pings when away: store the chat id in owner.json."""
     if not re.match(r"^-?\d{3,}$", chat_id or ""):
         sys.exit(f"{BAD} '{chat_id}' does not look like a Telegram id (digits only).")
+    load_owner()
     data = json.load(open(OWNER))
     data.setdefault("notify", {})["telegram_chat_id"] = chat_id
     data["notify"].setdefault("telegram_token_file", "~/.hermes/.env")

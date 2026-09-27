@@ -45,7 +45,8 @@ python3 kit.py uninstall    # remove the kit and put back what it replaced
 
 ## Your data stays yours
 Everything personal lives on your Mac: your answers in `~/.claude/kit/owner.json`, your brain files, boards and
-handoffs in `~/.claude/`. Nothing is sent anywhere by the kit. The kit folder itself contains no personal data,
+handoffs in `~/.claude/`. The kit sends none of it anywhere. It only downloads (the kit itself and the cmux
+skills from GitHub), and if you turn on Telegram pings, it sends the one line "done" message to your own bot. The kit folder itself contains no personal data,
 so you can pass it on (see `docs/SHARE.md`).
 
 ## Docs

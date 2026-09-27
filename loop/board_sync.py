@@ -53,7 +53,7 @@ def workspaces():
         out = subprocess.run([CMUX, "tree", "--all", "--json"], capture_output=True,
                              text=True, timeout=30).stdout
     except (subprocess.TimeoutExpired, OSError):
-        sys.exit(0)  # cmux is busy or closed: skip this run quietly, the next one is 2 minutes away
+        sys.exit(0)  # cmux is busy or closed  # cmux is busy or closed: skip this run quietly, the next one is 2 minutes away
     found = {}
 
     def walk(o):

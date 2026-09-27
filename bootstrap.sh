@@ -3,6 +3,7 @@
 #   curl -fsSL https://raw.githubusercontent.com/luisxalvarado/cmux-starter-kit/main/bootstrap.sh | bash
 # It checks the basics, downloads the kit to ~/Projects/cmux-starter-kit, and opens the Setup Guide.
 set -e
+set -o pipefail
 KIT="$HOME/Projects/cmux-starter-kit"
 REPO="https://github.com/luisxalvarado/cmux-starter-kit.git"
 
@@ -10,6 +11,10 @@ say() { printf '\n\033[1;34m%s\033[0m\n' "$1"; }
 
 if [ ! -d /Applications/cmux.app ]; then
   say "cmux is not installed yet. Download it from https://cmux.com, drag it to Applications, open it, and run this line again inside cmux."
+  exit 1
+fi
+if [ -z "$CMUX_WORKSPACE_ID" ]; then
+  say "Please run this line from a terminal tab inside cmux (not the regular Terminal app). Open cmux, then paste it there."
   exit 1
 fi
 if ! xcode-select -p >/dev/null 2>&1; then
@@ -20,9 +25,17 @@ fi
 if ! command -v claude >/dev/null 2>&1 && [ ! -x "$HOME/.local/bin/claude" ]; then
   say "Installing Claude Code (the official installer from claude.ai)..."
   curl -fsSL https://claude.ai/install.sh | bash
+fi
+if ! command -v claude >/dev/null 2>&1 && [ -x "$HOME/.local/bin/claude" ]; then
+  # Make `claude` work in every new tab, not just this one.
+  grep -q '.local/bin' "$HOME/.zshrc" 2>/dev/null || echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
   export PATH="$HOME/.local/bin:$PATH"
 fi
 CLAUDE_BIN="$(command -v claude || echo "$HOME/.local/bin/claude")"
+if [ ! -x "$CLAUDE_BIN" ]; then
+  say "Claude Code did not install. Check your internet connection and run this line again, or install it from https://claude.ai/download"
+  exit 1
+fi
 
 mkdir -p "$HOME/Projects"
 if [ -d "$KIT/.git" ]; then

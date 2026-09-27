@@ -18,7 +18,7 @@
 // Data: ~/.claude/boards/ via ~/.claude/loop/board_sync.py (plan, decisions,
 // ⏳ and 📅) and ~/.claude/loop/live_line.py (the live activity).
 // Switch: right-click the sidebar button and pick starter-board or the standard one.
-// Colours: change the six constants below to restyle the whole sidebar.
+// Colours: change the constants below to restyle the whole sidebar.
 
 const BLUE = "#5b9cf6";   // unread count
 const GREEN = "#22ab94";  // plan complete
@@ -66,9 +66,9 @@ function askedSignal(w) {
   // Tap opens the tab that asked (its surface id rides in the label), else the newest idle tab.
   return { e: "💬", t: "asked you something" + (n > 1 ? ` (${n} tabs)` : ""), go: () => focusAgent(w, sid ? { surfaceId: sid } : lastIdle(w)) };
 }
-// The light: full glow while a thread is stopped on a question box (until he
+// The light: full glow while a thread is stopped on a question box (until you
 // answers); soft glow while the workspace has something you have not opened yet
-// (cmux's own unread marker, which clears when he opens the tab).
+// (cmux's own unread marker, which clears when you open the tab).
 function glow(w) { return asker(w) ? "full" : w && w.unread ? "soft" : ""; }
 function worker(w) { return agents(w).find((a) => a.status === "working"); }
 // Busy if cmux says an agent is working OR our own live line hook reports an
@@ -129,7 +129,7 @@ function liveColor(w) {
   return planValue(w) >= 1 ? GREEN : SOFT;
 }
 function showBar(w) { return !asker(w) && !busy(w) && planLine(w) !== ""; }
-function slug(t) { return (t || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+function slug(t) { return (t || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }  // must match kit.py slug()
 
 function focusAgent(w, a) {
   cmux("workspace.select", { workspace_id: w.id });

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """/prime helper: gather what a thread needs to start, fast and deterministic.
 
-Part of the daily loop (see ~/.claude/loop/README.md). It prints a compact
+Part of the daily loop (/prime, /log). It prints a compact
 brief for the agent to summarize. It reads only what is NOT already loaded
 automatically (CLAUDE.md and MEMORY.md load on their own):
   1. handoffs for this project (this thread's first), from ~/.claude/handoffs

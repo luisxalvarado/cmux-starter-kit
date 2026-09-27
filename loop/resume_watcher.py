@@ -135,7 +135,7 @@ def surfaces():
     tabs are matched through the terminal (tty) the Claude process runs on."""
     try:
         out = subprocess.run([CMUX, "tree", "--all", "--json"], capture_output=True, text=True, timeout=30).stdout
-    except subprocess.TimeoutExpired:
+    except (subprocess.TimeoutExpired, OSError):
         return {}  # cmux is busy: every thread counts as "tab not found", nothing is typed
     found = {}
 
@@ -152,7 +152,10 @@ def surfaces():
             for v in o:
                 walk(v, ws)
 
-    walk(json.loads(out or "{}"))
+    try:
+        walk(json.loads(out or "{}"))
+    except ValueError:
+        return {}
     return found
 
 
